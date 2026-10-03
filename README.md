@@ -8,6 +8,7 @@ The app starts empty. There are no predefined exercises or sample data; each use
 
 ## Features
 
+- **First-launch guided tour.** A welcome card, then a spotlight walkthrough of the real UI: streak, today's workout, and the Exercises, Workout and History tabs. Shown once; replay it from Profile → App tour (`components/onboarding/app-tour.tsx`).
 - **Home dashboard** with a greeting, streak card (current / longest / sessions), this week's activity strip and today's workout.
 - **Push / Pull / Legs rotation** with an "Up next" suggestion and **Skip** (for example, skip Leg Day). Skip has an undo, and the rotation continues from the skipped day.
 - **Fast set logging.** Each set is pre-filled from your previous session, has big −/+ steppers and numeric keyboards, and takes one tap to log. Weight changes carry over to the remaining sets, and **Add Set** duplicates the last one.

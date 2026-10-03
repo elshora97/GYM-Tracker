@@ -26,7 +26,10 @@ export async function resetDatabase() {
       db.workoutSets.clear(),
     ]);
     const user = createUser(previous?.name);
-    if (previous) user.settings = previous.settings;
+    if (previous) {
+      user.settings = previous.settings;
+      user.tourCompletedAt = previous.tourCompletedAt ?? null;
+    }
     await db.users.add(user);
     await recomputeStats();
   });

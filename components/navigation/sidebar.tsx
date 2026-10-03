@@ -29,6 +29,7 @@ export function Sidebar() {
               <li key={href}>
                 <Link
                   href={href}
+                  data-tour={`nav-${label.toLowerCase()}`}
                   aria-current={on ? "page" : undefined}
                   className={cn(
                     "press flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors",

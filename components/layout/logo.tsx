@@ -1,16 +1,22 @@
+"use client";
+
+import { useId } from "react";
 import { cn } from "@/lib/utils";
 
 /** App mark: a stylised barbell inside an ember tile. Mirrors public/icons/icon.svg. */
 export function Logo({ className }: { className?: string }) {
+  // Unique per instance: a gradient defined inside a display:none copy (e.g. the
+  // hidden desktop sidebar) would otherwise break every other logo on the page.
+  const gradientId = `logo-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <svg viewBox="0 0 64 64" className={cn("size-9", className)} aria-hidden>
       <defs>
-        <linearGradient id="logo-g" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="oklch(0.78 0.17 55)" />
           <stop offset="1" stopColor="oklch(0.64 0.21 35)" />
         </linearGradient>
       </defs>
-      <rect width="64" height="64" rx="16" fill="url(#logo-g)" />
+      <rect width="64" height="64" rx="16" fill={`url(#${gradientId})`} />
       <g fill="oklch(0.16 0.02 40)">
         <rect x="10" y="22" width="6" height="20" rx="2" />
         <rect x="17" y="17" width="7" height="30" rx="2.5" />

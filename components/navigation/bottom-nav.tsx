@@ -23,6 +23,7 @@ export function BottomNav() {
             <li key={href} className="flex">
               <Link
                 href={href}
+                data-tour={`nav-${label.toLowerCase()}`}
                 aria-current={on ? "page" : undefined}
                 className={cn(
                   "press group flex flex-1 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring",

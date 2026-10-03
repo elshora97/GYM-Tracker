@@ -15,6 +15,7 @@ import { StreakCard } from "@/components/streak/streak-card";
 import { TodayWorkout } from "@/components/dashboard/today-workout";
 import { InstallBanner } from "@/components/dashboard/install-banner";
 import { WorkoutCard } from "@/components/history/workout-card";
+import { AppTour } from "@/components/onboarding/app-tour";
 
 export default function HomePage() {
   const user = useUser();
@@ -64,12 +65,16 @@ export default function HomePage() {
         atRisk={isStreakAtRisk(user.stats, user.settings.streakRestDays)}
       />
 
+      <div data-tour="today">
       <TodayWorkout
         user={user}
         active={active}
         trainedToday={trainedToday}
         lastWorkout={index.workouts[0] ?? null}
       />
+      </div>
+
+      {!user.tourCompletedAt && <AppTour hasExercises={exercises.size > 0} />}
 
       <InstallBanner />
 

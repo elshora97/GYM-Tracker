@@ -21,6 +21,7 @@ export function createUser(name = "Athlete"): User {
     settings: { ...DEFAULT_SETTINGS },
     stats: { ...EMPTY_STATS },
     todayPlan: null,
+    tourCompletedAt: null,
     createdAt: now,
     updatedAt: now,
   };
@@ -49,6 +50,11 @@ export async function setTodayPlan(category: Category | null) {
     todayPlan: category ? { date: todayKey(), category } : null,
     updatedAt: Date.now(),
   });
+}
+
+/** Marks the app tour as seen (`done = true`) or queues it to replay (`false`). */
+export async function setTourCompleted(done: boolean) {
+  await getDb().users.update(USER_ID, { tourCompletedAt: done ? Date.now() : null, updatedAt: Date.now() });
 }
 
 /**

@@ -20,6 +20,7 @@ export function StreakCard({ stats, workoutDates, atRisk }: StreakCardProps) {
   return (
     <section
       aria-labelledby="streak-heading"
+      data-tour="streak"
       className="surface relative overflow-hidden rounded-3xl p-5"
     >
       {/* ember glow */}

@@ -41,6 +41,8 @@ export interface User {
   todayPlan: TodayPlan | null;
   /** Last time the user skipped a day in the Push/Pull/Legs rotation. */
   lastSkip?: { category: Category; at: number } | null;
+  /** When the first-launch app tour was finished or skipped. `null`/missing = show it. */
+  tourCompletedAt?: number | null;
   createdAt: number;
   updatedAt: number;
 }

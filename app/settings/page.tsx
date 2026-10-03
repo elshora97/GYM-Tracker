@@ -1,11 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Download, FileUp, Smartphone, Trash2, Check, Share } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Compass, Download, FileUp, Smartphone, Trash2, Check, Share } from "lucide-react";
 import { toast } from "sonner";
 import type { UserSettings } from "@/lib/types";
 import { useUser } from "@/lib/hooks/use-data";
-import { updateSettings, updateUserName } from "@/lib/storage/repositories/user";
+import { setTourCompleted, updateSettings, updateUserName } from "@/lib/storage/repositories/user";
 import { downloadJson, exportBackup, importBackup, parseBackup } from "@/lib/storage/backup";
 import { resetDatabase } from "@/lib/storage/seed";
 import { todayKey } from "@/lib/utils/date";
@@ -32,6 +33,7 @@ type Confirm = { kind: "import"; file: File } | { kind: "reset" } | null;
 export default function SettingsPage() {
   const user = useUser();
   const install = useInstall();
+  const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [confirm, setConfirm] = useState<Confirm>(null);
 
@@ -118,6 +120,23 @@ export default function SettingsPage() {
                   Install
                 </Button>
               ) : null
+            }
+          />
+          <Row
+            icon={Compass}
+            title="App tour"
+            description="Replay the quick guide to the main screens."
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={async () => {
+                  await setTourCompleted(false);
+                  router.push("/");
+                }}
+              >
+                Replay
+              </Button>
             }
           />
         </Section>
