@@ -10,6 +10,7 @@ import { greeting, todayKey } from "@/lib/utils/date";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
+import { InstallButton } from "@/components/layout/install-button";
 import { EmptyState } from "@/components/layout/empty-state";
 import { StreakCard } from "@/components/streak/streak-card";
 import { TodayWorkout } from "@/components/dashboard/today-workout";
@@ -41,7 +42,10 @@ export default function HomePage() {
           <p className="text-sm text-muted-foreground">{greeting()},</p>
           <h1 className="truncate font-display text-3xl font-bold tracking-wide uppercase">{user.name}</h1>
         </div>
-        <Logo className="size-10 lg:hidden" />
+        <div className="flex shrink-0 items-center gap-2 lg:hidden">
+          <InstallButton label="Install" className="h-10 rounded-full px-4" />
+          <Logo className="size-10" />
+        </div>
       </header>
 
       {exercises.size === 0 && (

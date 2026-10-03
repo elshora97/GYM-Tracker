@@ -6,6 +6,7 @@ import { Flame } from "lucide-react";
 import { useActiveWorkout, useUser } from "@/lib/hooks/use-data";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/layout/logo";
+import { InstallButton } from "@/components/layout/install-button";
 import { isActive, NAV_ITEMS } from "@/components/navigation/nav-items";
 import { CATEGORY_META } from "@/lib/workout/catalog";
 
@@ -51,6 +52,7 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-auto flex flex-col gap-3">
+        <InstallButton variant="secondary" className="w-full" />
         {active && (
           <Link
             href="/workout"

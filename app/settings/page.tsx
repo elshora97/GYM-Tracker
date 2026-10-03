@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { useInstall } from "@/components/layout/app-provider";
+import { InstallButton } from "@/components/layout/install-button";
 
 type Confirm = { kind: "import"; file: File } | { kind: "reset" } | null;
 
@@ -115,11 +116,9 @@ export default function SettingsPage() {
             action={
               install.isStandalone ? (
                 <Check className="size-5 text-success" aria-hidden />
-              ) : install.canPrompt ? (
-                <Button size="sm" onClick={() => install.promptInstall()}>
-                  Install
-                </Button>
-              ) : null
+              ) : (
+                <InstallButton label="Install" />
+              )
             }
           />
           <Row
