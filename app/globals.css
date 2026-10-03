@@ -77,7 +77,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   --animate-rise: rise 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  --animate-pop: pop 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  --animate-pop: pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   --animate-flicker: flicker 2.4s ease-in-out infinite;
   --animate-ember: ember 2.2s ease-out infinite;
   --animate-shimmer: shimmer 1.6s linear infinite;
