@@ -1,0 +1,100 @@
+// Reference schema for a future backend. It mirrors lib/types/index.ts 1:1 so the
+// IndexedDB data (and JSON backups) can be migrated to PostgreSQL without reshaping.
+// Rename to prisma/schema.prisma when adding a server.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Category {
+  push
+  pull
+  legs
+}
+
+enum WorkoutStatus {
+  active
+  completed
+}
+
+model User {
+  id        String     @id @default(uuid())
+  name      String
+  settings  Json       // { unit: "kg" | "lbs", streakRestDays: 0 | 1 | 2 }
+  stats     Json       // cached streak snapshot (derivable from workouts)
+  todayPlan Json?
+  lastSkip  Json?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  exercises Exercise[]
+  workouts  Workout[]
+}
+
+model Exercise {
+  id           String            @id @default(uuid())
+  userId       String
+  user         User              @relation(fields: [userId], references: [id])
+  name         String
+  category     Category
+  muscleGroup  String
+  isCustom     Boolean           @default(true)
+  isBodyweight Boolean           @default(false)
+  archived     Boolean           @default(false)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  usages       WorkoutExercise[]
+  sets         WorkoutSet[]
+
+  @@index([userId, category])
+}
+
+model Workout {
+  id          String            @id @default(uuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id])
+  date        String            // local calendar day, YYYY-MM-DD
+  category    Category
+  status      WorkoutStatus
+  startedAt   DateTime
+  completedAt DateTime?
+  duration    Int?              // seconds
+  exercises   WorkoutExercise[]
+  sets        WorkoutSet[]
+
+  @@index([userId, date])
+}
+
+model WorkoutExercise {
+  id         String       @id @default(uuid())
+  workoutId  String
+  workout    Workout      @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exerciseId String
+  exercise   Exercise     @relation(fields: [exerciseId], references: [id])
+  order      Int
+  completed  Boolean      @default(false)
+  sets       WorkoutSet[]
+
+  @@unique([workoutId, order])
+}
+
+model WorkoutSet {
+  id                String          @id @default(uuid())
+  workoutExerciseId String
+  workoutExercise   WorkoutExercise @relation(fields: [workoutExerciseId], references: [id], onDelete: Cascade)
+  workoutId         String          // denormalised for per-workout queries
+  workout           Workout         @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exerciseId        String          // denormalised for per-exercise history
+  exercise          Exercise        @relation(fields: [exerciseId], references: [id])
+  setNumber         Int
+  weight            Decimal?        @db.Decimal(6, 2) // kilograms; null = bodyweight
+  reps              Int
+  completed         Boolean         @default(false)
+  completedAt       DateTime?
+
+  @@index([exerciseId])
+}

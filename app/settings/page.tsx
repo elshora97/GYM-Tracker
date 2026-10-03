@@ -1,13 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Download, FileUp, Smartphone, RotateCcw, Trash2, Check, Share } from "lucide-react";
+import { Download, FileUp, Smartphone, Trash2, Check, Share } from "lucide-react";
 import { toast } from "sonner";
 import type { UserSettings } from "@/lib/types";
 import { useUser } from "@/lib/hooks/use-data";
 import { updateSettings, updateUserName } from "@/lib/storage/repositories/user";
 import { downloadJson, exportBackup, importBackup, parseBackup } from "@/lib/storage/backup";
-import { seedDatabase } from "@/lib/storage/seed";
+import { resetDatabase } from "@/lib/storage/seed";
 import { todayKey } from "@/lib/utils/date";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ import {
 import { PageHeader } from "@/components/layout/page-header";
 import { useInstall } from "@/components/layout/app-provider";
 
-type Confirm = { kind: "import"; file: File } | { kind: "reset" } | { kind: "demo" } | null;
+type Confirm = { kind: "import"; file: File } | { kind: "reset" } | null;
 
 export default function SettingsPage() {
   const user = useUser();
@@ -156,16 +156,6 @@ export default function SettingsPage() {
             }}
           />
           <Row
-            icon={RotateCcw}
-            title="Load demo data"
-            description="Replace everything with sample exercises and workouts."
-            action={
-              <Button size="sm" variant="secondary" onClick={() => setConfirm({ kind: "demo" })}>
-                Load
-              </Button>
-            }
-          />
-          <Row
             icon={Trash2}
             title="Start fresh"
             description="Delete all workouts and exercises."
@@ -185,12 +175,12 @@ export default function SettingsPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirm?.kind === "import" ? "Import backup?" : confirm?.kind === "demo" ? "Load demo data?" : "Delete all data?"}
+              {confirm?.kind === "import" ? "Import backup?" : "Delete all data?"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirm?.kind === "import"
                 ? `This replaces all data on this device with “${confirm.file.name}”.`
-                : "This replaces all workouts, exercises and settings on this device. Export a backup first if you want to keep them."}
+                : "This deletes all workouts and exercises on this device. Export a backup first if you want to keep them."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -201,12 +191,12 @@ export default function SettingsPage() {
                 if (!confirm) return;
                 if (confirm.kind === "import") await onImport(confirm.file);
                 else {
-                  await seedDatabase({ withDemoData: confirm.kind === "demo" });
-                  toast.success(confirm.kind === "demo" ? "Demo data loaded" : "All data cleared");
+                  await resetDatabase();
+                  toast.success("All data cleared");
                 }
               }}
             >
-              {confirm?.kind === "import" ? "Import" : confirm?.kind === "demo" ? "Load" : "Delete"}
+              {confirm?.kind === "import" ? "Import" : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
