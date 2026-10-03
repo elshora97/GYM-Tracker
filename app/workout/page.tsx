@@ -4,8 +4,8 @@ import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Category } from "@/lib/types";
 import { CATEGORIES } from "@/lib/types";
-import { useActiveWorkout, useCompletedWorkouts } from "@/lib/hooks/use-data";
-import { nextCategory } from "@/lib/workout/catalog";
+import { useActiveWorkout, useCompletedWorkouts, useUser } from "@/lib/hooks/use-data";
+import { suggestNextCategory } from "@/lib/workout/catalog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/layout/page-header";
 import { ActiveWorkout } from "@/components/workout/active-workout";
@@ -35,7 +35,8 @@ function WorkoutRouter() {
 function ChooseCategory() {
   const router = useRouter();
   const completed = useCompletedWorkouts();
-  const suggested = nextCategory(completed?.[0]?.category);
+  const user = useUser();
+  const suggested = suggestNextCategory(completed?.[0], user?.lastSkip);
   return (
     <div>
       <PageHeader eyebrow="Start workout" title="What are you training?" />

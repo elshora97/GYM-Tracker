@@ -37,6 +37,20 @@ export const ALL_MUSCLE_GROUPS = Array.from(
   new Set(Object.values(CATEGORY_META).flatMap((c) => c.muscleGroups)),
 ).sort();
 
+/**
+ * Next day in the rotation, anchored on whichever happened last: the most recent
+ * completed workout or the most recent skip.
+ */
+export function suggestNextCategory(
+  lastWorkout: { category: Category; completedAt: number | null } | null | undefined,
+  lastSkip: { category: Category; at: number } | null | undefined,
+): Category {
+  if (lastSkip && (!lastWorkout || lastSkip.at > (lastWorkout.completedAt ?? 0))) {
+    return nextCategory(lastSkip.category);
+  }
+  return nextCategory(lastWorkout?.category);
+}
+
 export function nextCategory(last: Category | null | undefined): Category {
   if (last === "push") return "pull";
   if (last === "pull") return "legs";

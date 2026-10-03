@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { CalendarDays } from "lucide-react";
 import { useExerciseMap, useHistoryIndex, useSettings } from "@/lib/hooks/use-data";
 import { buildWorkoutSummaries, groupByMonth, weeklyFrequency } from "@/lib/workout/history";
+import { shiftDateKey, todayKey } from "@/lib/utils/date";
 import { formatNumber, kgToUnit } from "@/lib/utils/units";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,7 +26,8 @@ export default function HistoryPage() {
   const data = useMemo(() => {
     if (!index) return undefined;
     const summaries = buildWorkoutSummaries(index.workouts, index.workoutExercises, index.sets);
-    const recent = summaries.filter((s) => Date.now() - s.workout.startedAt < 30 * 864e5);
+    const cutoff = shiftDateKey(todayKey(), -30);
+    const recent = summaries.filter((s) => s.workout.date > cutoff);
     const avgDuration = recent.length
       ? recent.reduce((n, s) => n + (s.workout.duration ?? 0), 0) / recent.length
       : 0;

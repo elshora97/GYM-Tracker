@@ -68,7 +68,7 @@ export default function HomePage() {
         user={user}
         active={active}
         trainedToday={trainedToday}
-        lastCategory={index.workouts[0]?.category ?? null}
+        lastWorkout={index.workouts[0] ?? null}
       />
 
       <InstallBanner />

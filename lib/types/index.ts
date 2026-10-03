@@ -39,6 +39,8 @@ export interface User {
   /** Snapshot of streak stats, refreshed whenever workouts change. */
   stats: StreakStats;
   todayPlan: TodayPlan | null;
+  /** Last time the user skipped a day in the Push/Pull/Legs rotation. */
+  lastSkip?: { category: Category; at: number } | null;
   createdAt: number;
   updatedAt: number;
 }

@@ -2,6 +2,7 @@ import { getDb, USER_ID } from "@/lib/storage/db";
 import { computeStreakStats, withSessionCount } from "@/lib/streak";
 import type { Category, StreakStats, User, UserSettings } from "@/lib/types";
 import { todayKey } from "@/lib/utils/date";
+import { nextCategory } from "@/lib/workout/catalog";
 
 export const DEFAULT_SETTINGS: UserSettings = { unit: "kg", streakRestDays: 0 };
 
@@ -48,6 +49,28 @@ export async function setTodayPlan(category: Category | null) {
     todayPlan: category ? { date: todayKey(), category } : null,
     updatedAt: Date.now(),
   });
+}
+
+/**
+ * Skips a day in the rotation (e.g. skip Leg Day): today's plan moves to the next
+ * category and the skip is remembered so future suggestions continue from there.
+ * Returns a function that undoes the skip.
+ */
+export async function skipCategory(category: Category): Promise<() => Promise<void>> {
+  const db = getDb();
+  const before = await db.users.get(USER_ID);
+  await db.users.update(USER_ID, {
+    lastSkip: { category, at: Date.now() },
+    todayPlan: { date: todayKey(), category: nextCategory(category) },
+    updatedAt: Date.now(),
+  });
+  return async () => {
+    await db.users.update(USER_ID, {
+      lastSkip: before?.lastSkip ?? null,
+      todayPlan: before?.todayPlan ?? null,
+      updatedAt: Date.now(),
+    });
+  };
 }
 
 /**
