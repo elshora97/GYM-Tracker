@@ -104,7 +104,7 @@ function buildDemoHistory(exercises: Exercise[]) {
       const we: WorkoutExercise = { id: uid(), workoutId: workout.id, exerciseId: ex.id, order, completed: true };
       workoutExercises.push(we);
       const base = BASE_WEIGHT[name] ?? 20;
-      const step = base >= 40 ? 2.5 : base >= 15 ? 1.25 : 0.5;
+      const step = base >= 20 ? 2.5 : 1;
       const weight = ex.isBodyweight ? null : base + step * progression;
       const topReps = ex.isBodyweight ? 6 + Math.floor(rand() * 4) : 8 + Math.floor(rand() * 3);
       for (let s = 0; s < 3; s++) {
