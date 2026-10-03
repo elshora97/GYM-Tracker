@@ -26,7 +26,8 @@ export function useExerciseMap() {
 }
 
 export function useExercise(id: string | null) {
-  return useLiveQuery(() => (id ? getDb().exercises.get(id) : undefined), [id]);
+  // `null` = not found, `undefined` = loading
+  return useLiveQuery(async () => (id ? ((await getDb().exercises.get(id)) ?? null) : null), [id]);
 }
 
 export function useActiveWorkout() {

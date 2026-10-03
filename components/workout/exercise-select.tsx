@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Play } from "lucide-react";
+import { Check, Dumbbell, Play, Plus } from "lucide-react";
 import { toast } from "sonner";
 import type { Category } from "@/lib/types";
 import { useExercises, useLastPerformanceMap, useLastRoutine, useSettings } from "@/lib/hooks/use-data";
@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/layout/page-header";
 import { catVar } from "@/components/workout/category-style";
+import { EmptyState } from "@/components/layout/empty-state";
+import { ExerciseFormSheet } from "@/components/exercises/exercise-form";
 
 const DEFAULT_PICK = 5;
 
@@ -26,6 +28,7 @@ export function ExerciseSelect({ category }: { category: Category }) {
   const { unit } = useSettings();
   const [picked, setPicked] = useState<string[] | null>(null);
   const [starting, setStarting] = useState(false);
+  const [adding, setAdding] = useState(false);
 
   const list = useMemo(() => {
     if (!all || !routine) return undefined;
@@ -73,6 +76,18 @@ export function ExerciseSelect({ category }: { category: Category }) {
     <div style={catVar(category)}>
       <PageHeader eyebrow="Select exercises" title={CATEGORY_META[category].dayLabel} backHref="/workout" />
 
+      {list.length === 0 ? (
+        <EmptyState
+          icon={Dumbbell}
+          title="Build your workout routine."
+          description={`Add the exercises you do on ${CATEGORY_META[category].label} day. They'll be remembered for next time.`}
+          action={
+            <Button size="lg" className="w-full" onClick={() => setAdding(true)}>
+              <Plus className="size-5" aria-hidden /> Add Exercise
+            </Button>
+          }
+        />
+      ) : (
       <ul className="flex flex-col gap-2" aria-label={`${CATEGORY_META[category].label} exercises`}>
         {list.map((e) => {
           const on = selected.includes(e.id);
@@ -108,9 +123,25 @@ export function ExerciseSelect({ category }: { category: Category }) {
             </li>
           );
         })}
+        <li>
+          <Button variant="outline" size="lg" className="w-full border-dashed" onClick={() => setAdding(true)}>
+            <Plus className="size-5" aria-hidden /> New exercise
+          </Button>
+        </li>
       </ul>
+      )}
+
+      <ExerciseFormSheet
+        open={adding}
+        onOpenChange={setAdding}
+        defaultCategory={category}
+        onSaved={(ex) => {
+          if (ex?.category === category) setPicked([...selected, ex.id]);
+        }}
+      />
 
       {/* Sticky start button sits above the bottom nav */}
+      {list.length > 0 && (
       <div className="sticky bottom-[calc(var(--nav-height)+env(safe-area-inset-bottom)+0.75rem)] mt-6 lg:bottom-6">
         <Button size="lg" className="w-full" disabled={selected.length === 0 || starting} onClick={start}>
           <Play className="size-5 fill-current" aria-hidden />
@@ -119,6 +150,7 @@ export function ExerciseSelect({ category }: { category: Category }) {
             : `Start Workout · ${selected.length} ${selected.length === 1 ? "exercise" : "exercises"}`}
         </Button>
       </div>
+      )}
     </div>
   );
 }

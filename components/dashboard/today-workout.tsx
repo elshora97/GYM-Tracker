@@ -6,7 +6,7 @@ import { CheckCircle2, Play, RotateCcw, Timer } from "lucide-react";
 import type { Category, User, Workout } from "@/lib/types";
 import { CATEGORIES } from "@/lib/types";
 import { CATEGORY_META, nextCategory } from "@/lib/workout/catalog";
-import { useLastRoutine, useWorkoutDetail } from "@/lib/hooks/use-data";
+import { useExercises, useLastRoutine, useWorkoutDetail } from "@/lib/hooks/use-data";
 import { useNow } from "@/lib/hooks/use-count-up";
 import { setTodayPlan } from "@/lib/storage/repositories/user";
 import { formatClock, todayKey } from "@/lib/utils/date";
@@ -44,7 +44,9 @@ function PlannedCard({ category }: { category: Category }) {
   const meta = CATEGORY_META[category];
   const Icon = CATEGORY_ICON[category];
   const routine = useLastRoutine(category);
-  const count = routine?.length || DEFAULT_ROUTINE_SIZE;
+  const exercises = useExercises();
+  const available = exercises?.filter((e) => e.category === category).length ?? 0;
+  const count = routine?.length || Math.min(DEFAULT_ROUTINE_SIZE, available);
 
   return (
     <section aria-labelledby="today-heading">
@@ -58,7 +60,9 @@ function PlannedCard({ category }: { category: Category }) {
           <div>
             <p className="font-display text-4xl leading-none font-extrabold tracking-wide uppercase">{meta.dayLabel}</p>
             <p className="mt-2 text-sm text-muted-foreground">{meta.muscles.join(" • ")}</p>
-            <p className="mt-1 text-sm font-medium">{pluralize(count, "exercise")}</p>
+            <p className="mt-1 text-sm font-medium">
+              {count > 0 ? pluralize(count, "exercise") : "Add your exercises to get started"}
+            </p>
           </div>
           <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-[color-mix(in_oklch,var(--cat)_16%,transparent)] text-(--cat)">
             <Icon className="size-6" aria-hidden />

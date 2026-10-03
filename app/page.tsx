@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
-import { Dumbbell } from "lucide-react";
+import { Dumbbell, ListPlus } from "lucide-react";
 import { useActiveWorkout, useExerciseMap, useHistoryIndex, useUser } from "@/lib/hooks/use-data";
 import { isStreakAtRisk } from "@/lib/streak";
 import { buildWorkoutSummaries } from "@/lib/workout/history";
@@ -42,6 +42,21 @@ export default function HomePage() {
         </div>
         <Logo className="size-10 lg:hidden" />
       </header>
+
+      {exercises.size === 0 && (
+        <section className="surface flex items-center gap-4 rounded-2xl border-primary/30 p-4" aria-label="Get started">
+          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
+            <ListPlus className="size-5" aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">Build your exercise library</p>
+            <p className="text-sm text-muted-foreground">Add the exercises you train on Push, Pull and Legs days.</p>
+          </div>
+          <Button asChild size="sm">
+            <Link href="/exercises">Add</Link>
+          </Button>
+        </section>
+      )}
 
       <StreakCard
         stats={user.stats}

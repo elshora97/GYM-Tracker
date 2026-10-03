@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Search } from "lucide-react";
+import { Check, Plus, Search } from "lucide-react";
 import type { Category } from "@/lib/types";
 import { CATEGORIES } from "@/lib/types";
 import { useExercises } from "@/lib/hooks/use-data";
@@ -17,10 +17,18 @@ interface ExercisePickerProps {
   initialCategory: Category;
   exclude: string[];
   onConfirm: (ids: string[]) => void;
+  onCreateNew: () => void;
 }
 
 /** Bottom sheet for adding exercises to a running workout. */
-export function ExercisePicker({ open, onOpenChange, initialCategory, exclude, onConfirm }: ExercisePickerProps) {
+export function ExercisePicker({
+  open,
+  onOpenChange,
+  initialCategory,
+  exclude,
+  onConfirm,
+  onCreateNew,
+}: ExercisePickerProps) {
   const exercises = useExercises();
   const [category, setCategory] = useState<Category>(initialCategory);
   const [query, setQuery] = useState("");
@@ -112,9 +120,18 @@ export function ExercisePicker({ open, onOpenChange, initialCategory, exclude, o
               </li>
             );
           })}
-          {list.length === 0 && <li className="py-10 text-center text-sm text-muted-foreground">No exercises found.</li>}
+          {list.length === 0 && <li className="py-10 text-center text-sm text-muted-foreground">{query ? "No exercises found." : "No exercises here yet — create one below."}</li>}
         </ul>
         <DrawerFooter className="border-t border-border pt-3">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              close(false);
+              onCreateNew();
+            }}
+          >
+            <Plus className="size-4" aria-hidden /> Create new exercise
+          </Button>
           <Button
             size="lg"
             disabled={picked.length === 0}

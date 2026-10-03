@@ -47,7 +47,7 @@ export async function createExercise(input: ExerciseInput): Promise<Exercise> {
   return exercise;
 }
 
-/** Edit name / muscle, or move between categories. Works for default exercises too. */
+/** Edit name / muscle, or move between categories. */
 export async function updateExercise(id: string, input: ExerciseInput) {
   await assertValid(input, id);
   await getDb().exercises.update(id, {
@@ -59,14 +59,10 @@ export async function updateExercise(id: string, input: ExerciseInput) {
   });
 }
 
-/**
- * Custom exercises are soft-deleted (archived) so past workouts keep their names.
- * Default exercises cannot be deleted.
- */
+/** Soft delete (archive) so past workouts keep showing the exercise name. */
 export async function deleteExercise(id: string) {
   const db = getDb();
   const ex = await db.exercises.get(id);
   if (!ex) return;
-  if (!ex.isCustom) throw new Error("Default exercises can't be deleted");
   await db.exercises.update(id, { archived: true, updatedAt: Date.now() });
 }

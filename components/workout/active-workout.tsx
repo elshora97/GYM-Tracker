@@ -33,6 +33,7 @@ import { ExerciseLogger } from "@/components/workout/exercise-logger";
 import { ExercisePicker } from "@/components/workout/exercise-picker";
 import { catVar } from "@/components/workout/category-style";
 import { EmptyState } from "@/components/layout/empty-state";
+import { ExerciseFormSheet } from "@/components/exercises/exercise-form";
 
 export function ActiveWorkout({ workout }: { workout: Workout }) {
   const router = useRouter();
@@ -42,6 +43,7 @@ export function ActiveWorkout({ workout }: { workout: Workout }) {
   const now = useNow();
   const [expandedId, setExpandedId] = useState<string | null | undefined>(undefined);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [confirm, setConfirm] = useState<"finish" | "discard" | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -179,6 +181,14 @@ export function ActiveWorkout({ workout }: { workout: Workout }) {
         onConfirm={async (ids) => {
           for (const id of ids) await addExerciseToWorkout(workout.id, id);
         }}
+        onCreateNew={() => setCreating(true)}
+      />
+
+      <ExerciseFormSheet
+        open={creating}
+        onOpenChange={setCreating}
+        defaultCategory={workout.category}
+        onSaved={(ex) => ex && addExerciseToWorkout(workout.id, ex.id)}
       />
 
       <AlertDialog open={confirm !== null} onOpenChange={(o) => !o && setConfirm(null)}>

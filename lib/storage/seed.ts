@@ -3,17 +3,40 @@ import { createUser, recomputeStats } from "@/lib/storage/repositories/user";
 import type { Category, Exercise, Workout, WorkoutExercise, WorkoutSet } from "@/lib/types";
 import { uid } from "@/lib/utils";
 import { shiftDateKey, todayKey, fromDateKey } from "@/lib/utils/date";
-import { DEFAULT_EXERCISES, defaultExerciseId, nextCategory } from "@/lib/workout/catalog";
+import { nextCategory } from "@/lib/workout/catalog";
 
-export function buildDefaultExercises(): Exercise[] {
+/**
+ * The app ships with an empty exercise library — users build their own.
+ * These exercises exist only for the opt-in demo data (Profile → Load demo data).
+ */
+const DEMO_EXERCISES: { name: string; category: Category; muscleGroup: string; isBodyweight?: boolean }[] = [
+  { name: "Bench Press", category: "push", muscleGroup: "Chest" },
+  { name: "Incline Bench Press", category: "push", muscleGroup: "Chest" },
+  { name: "Shoulder Press", category: "push", muscleGroup: "Shoulders" },
+  { name: "Lateral Raise", category: "push", muscleGroup: "Shoulders" },
+  { name: "Triceps Pushdown", category: "push", muscleGroup: "Triceps" },
+  { name: "Deadlift", category: "pull", muscleGroup: "Back" },
+  { name: "Lat Pulldown", category: "pull", muscleGroup: "Lats" },
+  { name: "Pull Ups", category: "pull", muscleGroup: "Lats", isBodyweight: true },
+  { name: "Barbell Row", category: "pull", muscleGroup: "Back" },
+  { name: "Face Pull", category: "pull", muscleGroup: "Rear Delts" },
+  { name: "Barbell Curl", category: "pull", muscleGroup: "Biceps" },
+  { name: "Squat", category: "legs", muscleGroup: "Quads" },
+  { name: "Romanian Deadlift", category: "legs", muscleGroup: "Hamstrings" },
+  { name: "Leg Press", category: "legs", muscleGroup: "Quads" },
+  { name: "Leg Curl", category: "legs", muscleGroup: "Hamstrings" },
+  { name: "Calf Raise", category: "legs", muscleGroup: "Calves" },
+];
+
+function buildDemoExercises(): Exercise[] {
   const now = Date.now();
-  return DEFAULT_EXERCISES.map((d) => ({
-    id: defaultExerciseId(d.name),
+  return DEMO_EXERCISES.map((d) => ({
+    id: uid(),
     name: d.name,
     category: d.category,
     muscleGroup: d.muscleGroup,
     isBodyweight: !!d.isBodyweight,
-    isCustom: false,
+    isCustom: true,
     archived: false,
     createdAt: now,
     updatedAt: now,
@@ -127,18 +150,20 @@ function buildDemoHistory(exercises: Exercise[]) {
   return { workouts, workoutExercises, workoutSets, lastCategory: workouts.at(-1)?.category ?? null };
 }
 
-/** First launch: create the profile, default exercise library and demo history. */
+/** First launch: create an empty profile. No exercises — the user adds their own. */
 export async function seedIfEmpty(): Promise<void> {
   const db = getDb();
-  await db.transaction("rw", [db.users, db.exercises, db.workouts, db.workoutExercises, db.workoutSets], async () => {
+  await db.transaction("rw", db.users, async () => {
     if (await db.users.get(USER_ID)) return;
-    await seedDatabase({ withDemoHistory: true });
+    await db.users.add(createUser());
   });
 }
 
-export async function seedDatabase({ withDemoHistory }: { withDemoHistory: boolean }) {
+/** Wipes everything. With withDemoData, loads sample exercises and ~6 weeks of workouts. */
+export async function seedDatabase({ withDemoData }: { withDemoData: boolean }) {
   const db = getDb();
   await db.transaction("rw", [db.users, db.exercises, db.workouts, db.workoutExercises, db.workoutSets], async () => {
+    const previous = await db.users.get(USER_ID);
     await Promise.all([
       db.users.clear(),
       db.exercises.clear(),
@@ -146,10 +171,11 @@ export async function seedDatabase({ withDemoHistory }: { withDemoHistory: boole
       db.workoutExercises.clear(),
       db.workoutSets.clear(),
     ]);
-    const user = createUser(withDemoHistory ? "Alex" : "Athlete");
-    const exercises = buildDefaultExercises();
-    await db.exercises.bulkAdd(exercises);
-    if (withDemoHistory) {
+    const user = createUser(previous?.name);
+    if (previous) user.settings = previous.settings;
+    if (withDemoData) {
+      const exercises = buildDemoExercises();
+      await db.exercises.bulkAdd(exercises);
       const history = buildDemoHistory(exercises);
       await db.workouts.bulkAdd(history.workouts);
       await db.workoutExercises.bulkAdd(history.workoutExercises);
